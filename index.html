@@ -5,7 +5,7 @@
 <style>
 html,body{margin:0;height:100%;background:#1E0D47;color:#fff;font-family:"IBM Plex Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;overflow:hidden}
 *{box-sizing:border-box}
-#stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:fixed;left:0;right:0;top:0;bottom:64px;display:flex;align-items:center;justify-content:center}
 #frame{position:relative;flex:none;width:1920px;height:1080px;transform-origin:center center;box-shadow:0 30px 80px rgba(0,0,0,.45);background:#FBFAFD;overflow:hidden}
 #frame>section{position:absolute;inset:0;width:1920px;height:1080px;box-sizing:border-box;opacity:0;transition:opacity .35s;pointer-events:none}
 #frame>section.on{opacity:1;pointer-events:auto}
@@ -16,13 +16,15 @@ html,body{margin:0;height:100%;background:#1E0D47;color:#fff;font-family:"IBM Pl
 x-shape{display:block;flex:none}
 x-shape[kind="arrow-right"]{clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%)}
 x-icon{display:inline-block;flex:none}x-icon svg{width:100%;height:100%;display:block}
-#bar{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;justify-content:center;gap:14px;background:linear-gradient(transparent,rgba(30,13,71,.85));font-size:14px;opacity:0;transition:opacity .25s}
-body:hover #bar,body.touch #bar{opacity:1}
-#bar button{height:36px;padding:0 14px;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(255,255,255,.08);color:#fff;font:inherit;cursor:pointer}
+#bar{position:fixed;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:center;gap:14px;background:#1E0D47;border-top:1px solid rgba(255,255,255,.12);font-size:14px;z-index:5}
+#bar button{height:40px;padding:0 18px;border:1px solid rgba(255,255,255,.35);border-radius:999px;background:rgba(255,255,255,.08);color:#fff;font:inherit;font-weight:600;cursor:pointer}#bar button.primary{background:#9A00FF;border-color:#9A00FF}#bar button.primary:hover{background:#6D00E6}
+.arr{position:fixed;top:50%;transform:translateY(-50%);width:56px;height:56px;border-radius:999px;border:0;background:rgba(30,13,71,.75);color:#fff;font-size:40px;line-height:1;cursor:pointer;z-index:5;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.3)}.arr:hover{background:#9A00FF}#arr-l{left:16px}#arr-r{right:16px}
+#hint{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:rgba(30,13,71,.85);color:#fff;padding:8px 14px;border-radius:999px;font-size:13px;z-index:5;transition:opacity .5s}#hint.off{opacity:0;pointer-events:none}
+#ctr{min-width:56px;text-align:center;font-variant-numeric:tabular-nums}
 #bar button:hover{background:rgba(255,255,255,.18)}
 #dots{display:flex;gap:6px}#dots i{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.35);display:block;cursor:pointer}#dots i.on{background:#9A00FF}
-#hit-l,#hit-r{position:fixed;top:0;bottom:56px;width:30%;cursor:pointer}#hit-l{left:0}#hit-r{right:0}
-@media (max-width:700px){#bar{opacity:1}#dots{display:none}}
+#hit-l,#hit-r{position:fixed;top:0;bottom:64px;width:30%;cursor:pointer}#hit-l{left:0}#hit-r{right:0}
+@media (max-width:700px){#dots{display:none}.arr{width:44px;height:44px;font-size:32px}#arr-l{left:8px}#arr-r{right:8px}}
 </style></head><body>
 <div id="stage"><div id="frame"><section id="cover" style="background:#FBFAFD; color:#1A1440; font-family:'Source Serif 4', Georgia, serif; padding:72px 96px 160px; display:flex; flex-direction:column; gap:0px">
 <div style="position:absolute; left:1000px; top:0px; width:920px; height:1080px; background:linear-gradient(160deg, #F4E5FF 0%, #E2CCFF 100%)"></div>
@@ -443,16 +445,18 @@ body:hover #bar,body.touch #bar{opacity:1}
 
 </section></div></div>
 <div id="hit-l" title="Previous"></div><div id="hit-r" title="Next"></div>
-<div id="bar"><button id="prev" type="button">&#8592; Prev</button><div id="dots"></div><span id="ctr"></span><button id="next" type="button">Next &#8594;</button><button id="fs" type="button">Full screen</button></div>
+<button id="arr-l" class="arr" type="button" aria-label="Previous slide">&#8249;</button><button id="arr-r" class="arr" type="button" aria-label="Next slide">&#8250;</button>
+<div id="hint">Use the arrows, the arrow keys, or swipe to move between slides</div>
+<div id="bar"><button id="nav-prev" type="button">&#8592; Previous</button><div id="dots"></div><span id="ctr"></span><button id="nav-next" type="button" class="primary">Next slide &#8594;</button><button id="fs" type="button">Full screen</button></div>
 <script>
 const ICONS={"CheckCircle": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m8.5 12.5 2.5 2.5 5-5\"/></svg>", "Chart": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M4 20V10M10 20V4M16 20v-7M22 20H2\"/></svg>", "Play": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M7 4.5v15l12-7.5z\"/></svg>", "Search": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg>"};
 document.querySelectorAll('x-icon').forEach(e=>{e.innerHTML=ICONS[e.getAttribute('name')]||'';});
 const S=[...document.querySelectorAll('#frame>section')],ids=S.map(s=>s.id);let i=Math.max(0,ids.indexOf(location.hash.slice(1)));
 const dots=document.getElementById('dots');S.forEach((s,k)=>{const d=document.createElement('i');d.onclick=()=>go(k);dots.appendChild(d);});
-function go(k){i=(k+S.length)%S.length;S.forEach((s,j)=>s.classList.toggle('on',j===i));[...dots.children].forEach((d,j)=>d.classList.toggle('on',j===i));document.getElementById('ctr').textContent=(i+1)+' / '+S.length;history.replaceState(null,'','#'+ids[i]);}
-function fit(){const f=document.getElementById('frame');const sc=Math.min(innerWidth/1920,(innerHeight-(innerWidth<700?56:0))/1080);f.style.transform='scale('+sc+')';}
+let moved=0;function go(k){if(++moved>1)document.getElementById('hint').classList.add('off');i=(k+S.length)%S.length;S.forEach((s,j)=>s.classList.toggle('on',j===i));[...dots.children].forEach((d,j)=>d.classList.toggle('on',j===i));document.getElementById('ctr').textContent=(i+1)+' / '+S.length;history.replaceState(null,'','#'+ids[i]);}
+function fit(){const f=document.getElementById('frame');const sc=Math.min((innerWidth-(innerWidth<700?0:140))/1920,(innerHeight-64)/1080);f.style.transform='scale('+sc+')';}
 addEventListener('resize',fit);fit();go(i);
-document.getElementById('prev').onclick=()=>go(i-1);document.getElementById('next').onclick=()=>go(i+1);document.getElementById('hit-l').onclick=()=>go(i-1);document.getElementById('hit-r').onclick=()=>go(i+1);
+document.getElementById('nav-prev').onclick=()=>go(i-1);document.getElementById('nav-next').onclick=()=>go(i+1);document.getElementById('arr-l').onclick=()=>go(i-1);document.getElementById('arr-r').onclick=()=>go(i+1);document.getElementById('hit-l').onclick=()=>go(i-1);document.getElementById('hit-r').onclick=()=>go(i+1);
 document.getElementById('fs').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});};
 addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){go(i+1);e.preventDefault();}if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){go(i-1);e.preventDefault();}if(e.key==='Home')go(0);if(e.key==='End')go(S.length-1);if(e.key==='f')document.getElementById('fs').click();});
 let tx=null;addEventListener('touchstart',e=>{tx=e.touches[0].clientX;document.body.classList.add('touch');},{passive:true});addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)go(i+(dx<0?1:-1));tx=null;});
