@@ -24,7 +24,11 @@ x-icon{display:inline-block;flex:none}x-icon svg{width:100%;height:100%;display:
 #bar button:hover{border-color:#9A00FF}#bar button.primary:hover{background:#6D00E6;border-color:#6D00E6}
 #dots{display:flex;gap:6px}#dots i{width:8px;height:8px;border-radius:999px;background:#D2CFDA;display:block;cursor:pointer}#dots i.on{background:#9A00FF}
 #hit-l,#hit-r{position:fixed;top:0;bottom:64px;width:30%;cursor:pointer}#hit-l{left:0}#hit-r{right:0}
-@media (max-width:700px){#dots{display:none}#fs{display:none}#bar{gap:10px}#bar button{padding:0 12px;font-size:13px}.arr{width:44px;height:44px;font-size:32px}#arr-l{left:8px}#arr-r{right:8px}}
+@media (max-width:700px){#dots{display:none}#bar{gap:10px}#bar button{padding:0 12px;font-size:13px}.arr{width:44px;height:44px;font-size:32px}#arr-l{left:8px}#arr-r{right:8px}}
+#fs .ic{display:none;width:18px;height:18px}
+@media (max-width:700px){#bar #fs{padding:0 11px}#fs .tx{display:none}#fs .ic{display:block}}
+body.pfs #stage{bottom:0}body.pfs #bar,body.pfs #hint,body.pfs .arr{display:none}body.pfs #hit-l,body.pfs #hit-r{bottom:0}body.pfs #frame{box-shadow:none}
+#fs-x{display:none;position:fixed;top:10px;right:10px;z-index:6;width:40px;height:40px;border-radius:999px;border:1px solid #D2CFDA;background:#fff;color:#1E0D47;font-size:24px;line-height:1;cursor:pointer;box-shadow:0 6px 20px rgba(30,13,71,.12)}body.pfs #fs-x{display:flex;align-items:center;justify-content:center}
 </style></head><body>
 <div id="stage"><div id="frame"><section id="cover" style="background:#FBFAFD; color:#1A1440; font-family:'Source Serif 4', Georgia, serif; padding:72px 96px 160px; display:flex; flex-direction:column; gap:0px">
 <div style="position:absolute; left:1000px; top:0px; width:920px; height:1080px; background:linear-gradient(160deg, #F4E5FF 0%, #E2CCFF 100%)"></div>
@@ -447,17 +451,19 @@ x-icon{display:inline-block;flex:none}x-icon svg{width:100%;height:100%;display:
 <div id="hit-l" title="Previous"></div><div id="hit-r" title="Next"></div>
 <button id="arr-l" class="arr" type="button" aria-label="Previous slide">&#8249;</button><button id="arr-r" class="arr" type="button" aria-label="Next slide">&#8250;</button>
 <div id="hint">Use the arrows, the arrow keys, or swipe to move between slides</div>
-<div id="bar"><button id="nav-prev" type="button">&#8592; Previous</button><div id="dots"></div><span id="ctr"></span><button id="nav-next" type="button" class="primary">Next slide &#8594;</button><button id="fs" type="button">Full screen</button></div>
+<div id="bar"><button id="nav-prev" type="button">&#8592; Previous</button><div id="dots"></div><span id="ctr"></span><button id="nav-next" type="button" class="primary">Next slide &#8594;</button><button id="fs" type="button" aria-label="Full screen"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="tx">Full screen</span></button></div><button id="fs-x" type="button" aria-label="Exit full screen">&#215;</button>
 <script>
 const ICONS={"CheckCircle": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m8.5 12.5 2.5 2.5 5-5\"/></svg>", "Chart": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M4 20V10M10 20V4M16 20v-7M22 20H2\"/></svg>", "Play": "<svg viewBox=\"0 0 24 24\" fill=\"currentColor\"><path d=\"M7 4.5v15l12-7.5z\"/></svg>", "Search": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m20 20-3.5-3.5\"/></svg>"};
 document.querySelectorAll('x-icon').forEach(e=>{e.innerHTML=ICONS[e.getAttribute('name')]||'';});
 const S=[...document.querySelectorAll('#frame>section')],ids=S.map(s=>s.id);let i=Math.max(0,ids.indexOf(location.hash.slice(1)));
 const dots=document.getElementById('dots');S.forEach((s,k)=>{const d=document.createElement('i');d.onclick=()=>go(k);dots.appendChild(d);});
 let moved=0;function go(k){if(++moved>1)document.getElementById('hint').classList.add('off');i=(k+S.length)%S.length;S.forEach((s,j)=>s.classList.toggle('on',j===i));[...dots.children].forEach((d,j)=>d.classList.toggle('on',j===i));document.getElementById('ctr').textContent=(i+1)+' / '+S.length;history.replaceState(null,'','#'+ids[i]);}
-function fit(){const f=document.getElementById('frame');const sc=Math.min((innerWidth-(innerWidth<700?0:140))/1920,(innerHeight-64)/1080);f.style.transform='scale('+sc+')';}
+function fit(){const f=document.getElementById('frame');const pf=document.body.classList.contains('pfs');const sc=Math.min((innerWidth-(innerWidth<700||pf?0:140))/1920,(innerHeight-(pf?0:64))/1080);f.style.transform='scale('+sc+')';}
 addEventListener('resize',fit);fit();go(i);
 document.getElementById('nav-prev').onclick=()=>go(i-1);document.getElementById('nav-next').onclick=()=>go(i+1);document.getElementById('arr-l').onclick=()=>go(i-1);document.getElementById('arr-r').onclick=()=>go(i+1);document.getElementById('hit-l').onclick=()=>go(i-1);document.getElementById('hit-r').onclick=()=>go(i+1);
-document.getElementById('fs').onclick=()=>{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});};
+const root=document.documentElement,canFS=!!(root.requestFullscreen||root.webkitRequestFullscreen);function pfs(on){document.body.classList.toggle('pfs',on);fit();}
+document.getElementById('fs').onclick=()=>{const fe=document.fullscreenElement||document.webkitFullscreenElement;if(fe){(document.exitFullscreen||document.webkitExitFullscreen).call(document);return;}if(document.body.classList.contains('pfs')){pfs(false);return;}if(canFS){try{const p=(root.requestFullscreen||root.webkitRequestFullscreen).call(root);if(p&&p.catch)p.catch(()=>{});}catch(e){}setTimeout(()=>{if(!(document.fullscreenElement||document.webkitFullscreenElement))pfs(true);},500);}else pfs(true);};
+document.getElementById('fs-x').onclick=()=>pfs(false);addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('pfs'))pfs(false);});
 addEventListener('keydown',e=>{if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){go(i+1);e.preventDefault();}if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){go(i-1);e.preventDefault();}if(e.key==='Home')go(0);if(e.key==='End')go(S.length-1);if(e.key==='f')document.getElementById('fs').click();});
 let tx=null;addEventListener('touchstart',e=>{tx=e.touches[0].clientX;document.body.classList.add('touch');},{passive:true});addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>40)go(i+(dx<0?1:-1));tx=null;});
 </script></body></html>
